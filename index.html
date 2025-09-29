@@ -16,7 +16,7 @@
   <h1>Simulador de Lucro Real por Viagem</h1>
 
   <form id="formLucro">
-    <label for="valorPlataforma">Valor a Receber Pela Plataforma (R$)</label>
+    <label for="valorPlataforma">Valor a Receber Pela Plataforma (€)</label>
     <input type="number" id="valorPlataforma" required>
 
     <label for="tempoViagem">Tempo total da viagem (min)</label>
@@ -53,25 +53,25 @@
       }
 
       // Custos estimados
-      const custoTempo = tempo * 0.25;      // R$0,25 por minuto
-      const custoDistancia = distancia * 0.50; // R$0,50 por km
+      const custoTempo = tempo * 0.25;      // €0,25 por minuto
+      const custoDistancia = distancia * 0.50; // €0,50 por km
       const custoTotal = custoTempo + custoDistancia;
 
       // Lucro líquido
       const lucroLiquido = valor - custoTotal;
 
       resultadoTexto = `
-        Valor a Receber: R$${valor.toFixed(2)}
+        Valor a Receber Pela Plataforma: €${valor.toFixed(2)}
         Tempo da Viagem: ${tempo} min
-        Distância: ${distancia} km
-        Local de Recolha: ${origem}
-        Local de Destino: ${destino}
-        Custo Estimado: R$${custoTotal.toFixed(2)}
-        Lucro Líquido Estimado: R$${lucroLiquido.toFixed(2)}
+        Distância Percorrida: ${distancia} km
+        Localidade de Recolha: ${origem}
+        Localidade de Destino: ${destino}
+        Custo Estimado: €${custoTotal.toFixed(2)}
+        Lucro Líquido Estimado: €${lucroLiquido.toFixed(2)}
       `;
 
       document.getElementById('resultado').innerText =
-        `Lucro Líquido Estimado: R$${lucroLiquido.toFixed(2)}`;
+        `Lucro Líquido Estimado: €${lucroLiquido.toFixed(2)}`;
     }
 
     function exportarPDF() {
@@ -85,7 +85,7 @@
 
       doc.setFontSize(14);
       doc.text("Relatório de Lucro Real por Viagem", 20, 20);
-      const linhas = resultadoTexto.split('\n');
+      const linhas = resultadoTexto.trim().split('\n');
       let y = 40;
       linhas.forEach(linha => {
         doc.text(linha.trim(), 20, y);
