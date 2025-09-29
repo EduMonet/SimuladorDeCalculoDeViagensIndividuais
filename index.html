@@ -1,77 +1,151 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Simulador de Lucro Real por Viagem</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulador de Lucro Real | DriveAI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; }
-    label { display: block; margin-top: 15px; }
-    input, select { width: 300px; padding: 8px; margin-top: 5px; }
-    button { margin-top: 20px; padding: 10px 20px; }
-    #resultado { margin-top: 30px; font-weight: bold; font-size: 18px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+    }
+    h1 {
+      text-align: center;
+      color: #1a73e8;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .btn {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background: #155ab6;
+    }
+    .resultado {
+      margin-top: 25px;
+      padding: 15px;
+      background: #e8f0fe;
+      border-left: 5px solid #1a73e8;
+      border-radius: 8px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <h1>Simulador de Lucro Real por Viagem</h1>
+  <div class="container">
+    <h1>🧮 Simulador de Lucro Real por Viagem</h1>
+    <p style="text-align:center;">Insere os dados reais da tua viagem e descobre o lucro líquido estimado.</p>
 
-  <form id="formLucro">
-    <label for="valorPlataforma">Valor a Receber Pela Plataforma (€)</label>
-    <input type="number" id="valorPlataforma" required>
+    <div class="input-group">
+      <label for="valorRecebido">Valor a Receber Pela Plataforma (€)</label>
+      <input type="number" id="valorRecebido" placeholder="Ex: 2.01">
+    </div>
 
-    <label for="tempoViagem">Tempo total da viagem (min)</label>
-    <input type="number" id="tempoViagem" required>
+    <div class="input-group">
+      <label for="tempo">Tempo total da viagem (min)</label>
+      <input type="number" id="tempo" placeholder="Ex: 10">
+    </div>
 
-    <label for="distancia">Distância percorrida (km)</label>
-    <input type="number" id="distancia" required>
+    <div class="input-group">
+      <label for="distancia">Distância percorrida (km)</label>
+      <input type="number" id="distancia" placeholder="Ex: 4.8">
+    </div>
 
-    <label for="localRecolha">Localidade de recolha</label>
-    <input type="text" id="localRecolha">
+    <div class="input-group">
+      <label for="origem">Localidade de recolha</label>
+      <input type="text" id="origem" placeholder="Ex: Oeiras">
+    </div>
 
-    <label for="localDestino">Localidade de destino</label>
-    <input type="text" id="localDestino">
+    <div class="input-group">
+      <label for="destino">Localidade de destino</label>
+      <input type="text" id="destino" placeholder="Ex: Carnaxide">
+    </div>
 
-    <button type="button" onclick="calcularLucro()">Calcular</button>
-    <button type="button" onclick="exportarPDF()">Exportar PDF</button>
-  </form>
+    <button class="btn" onclick="calcularLucro()">Calcular</button>
+    <button class="btn" onclick="exportarPDF()">📄 Exportar PDF</button>
 
-  <div id="resultado"></div>
+    <div class="resultado" id="resultado"></div>
+  </div>
+
+  <footer>
+    Desenvolvido por DriveAI — Transparência para motoristas TVDE
+  </footer>
 
   <script>
     let resultadoTexto = "";
 
     function calcularLucro() {
-      const valor = parseFloat(document.getElementById('valorPlataforma').value);
-      const tempo = parseFloat(document.getElementById('tempoViagem').value);
-      const distancia = parseFloat(document.getElementById('distancia').value);
-      const origem = document.getElementById('localRecolha').value;
-      const destino = document.getElementById('localDestino').value;
+      const valorRecebido = parseFloat(document.getElementById('valorRecebido').value) || 0;
+      const tempo = parseFloat(document.getElementById('tempo').value) || 0;
+      const distancia = parseFloat(document.getElementById('distancia').value) || 0;
+      const origem = document.getElementById('origem').value || '—';
+      const destino = document.getElementById('destino').value || '—';
 
-      if (isNaN(valor) || isNaN(tempo) || isNaN(distancia)) {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-        return;
-      }
+      const comissaoPercentual = 25;
+      const valorOriginal = valorRecebido / (1 - comissaoPercentual / 100);
+      const comissao = valorOriginal - valorRecebido;
 
-      // Custos estimados
-      const custoTempo = tempo * 0.25;      // €0,25 por minuto
-      const custoDistancia = distancia * 0.50; // €0,50 por km
-      const custoTotal = custoTempo + custoDistancia;
+      const custoKm = 0.30;
+      const custoTempoHora = 10;
+      const custoTempo = (tempo / 60) * custoTempoHora;
+      const custoCarro = distancia * custoKm;
 
-      // Lucro líquido
-      const lucroLiquido = valor - custoTotal;
+      const lucroLiquido = valorRecebido - custoCarro - custoTempo;
 
       resultadoTexto = `
-        Valor a Receber Pela Plataforma: €${valor.toFixed(2)}
-        Tempo da Viagem: ${tempo} min
-        Distância Percorrida: ${distancia} km
-        Localidade de Recolha: ${origem}
-        Localidade de Destino: ${destino}
-        Custo Estimado: €${custoTotal.toFixed(2)}
-        Lucro Líquido Estimado: €${lucroLiquido.toFixed(2)}
+        Origem: ${origem}
+        Destino: ${destino}
+        Valor recebido: €${valorRecebido.toFixed(2)}
+        Valor estimado pago pelo passageiro: €${valorOriginal.toFixed(2)}
+        Comissão estimada (25%): €${comissao.toFixed(2)}
+        Custo do automóvel: €${custoCarro.toFixed(2)}
+        Custo do tempo: €${custoTempo.toFixed(2)}
+        Lucro líquido estimado: €${lucroLiquido.toFixed(2)}
+        ${lucroLiquido < 0 ? '⚠️ Esta viagem representa prejuízo para o motorista.' : ''}
       `;
 
-      document.getElementById('resultado').innerText =
-        `Lucro Líquido Estimado: €${lucroLiquido.toFixed(2)}`;
+      document.getElementById('resultado').innerHTML = resultadoTexto.replace(/\n/g, '<br>');
     }
 
     function exportarPDF() {
@@ -84,12 +158,14 @@
       const doc = new jsPDF();
 
       doc.setFontSize(14);
-      doc.text("Relatório de Lucro Real por Viagem", 20, 20);
-      const linhas = resultadoTexto.trim().split('\n');
-      let y = 40;
+      doc.text("Simulador de Lucro Real por Viagem", 20, 20);
+      doc.setFontSize(12);
+
+      const linhas = resultadoTexto.split('\n');
+      let y = 30;
       linhas.forEach(linha => {
         doc.text(linha.trim(), 20, y);
-        y += 10;
+        y += 8;
       });
 
       doc.save("lucro_real_viagem.pdf");
