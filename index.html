@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Simulador de Lucro Real por Viagem</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label { display: block; margin-top: 10px; }
-    input, select { width: 300px; padding: 5px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; }
-    #resultado { margin-top: 20px; font-weight: bold; }
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    label { display: block; margin-top: 15px; }
+    input, select { width: 300px; padding: 8px; margin-top: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; }
+    #resultado { margin-top: 30px; font-weight: bold; font-size: 18px; }
   </style>
 </head>
 <body>
   <h1>Simulador de Lucro Real por Viagem</h1>
 
   <form id="formLucro">
-    <label for="valorPlataforma">Valor a Receber Pela Plataforma (€)</label>
+    <label for="valorPlataforma">Valor a Receber Pela Plataforma (R$)</label>
     <input type="number" id="valorPlataforma" required>
 
     <label for="tempoViagem">Tempo total da viagem (min)</label>
@@ -37,10 +38,14 @@
   <div id="resultado"></div>
 
   <script>
+    let resultadoTexto = "";
+
     function calcularLucro() {
       const valor = parseFloat(document.getElementById('valorPlataforma').value);
       const tempo = parseFloat(document.getElementById('tempoViagem').value);
       const distancia = parseFloat(document.getElementById('distancia').value);
+      const origem = document.getElementById('localRecolha').value;
+      const destino = document.getElementById('localDestino').value;
 
       if (isNaN(valor) || isNaN(tempo) || isNaN(distancia)) {
         alert("Por favor, preencha todos os campos obrigatórios.");
@@ -48,19 +53,46 @@
       }
 
       // Custos estimados
-      const custoTempo = tempo * 0.20; // €0.20 por minuto
-      const custoDistancia = distancia * 0.35; // €0.35 por km
+      const custoTempo = tempo * 0.25;      // R$0,25 por minuto
+      const custoDistancia = distancia * 0.50; // R$0,50 por km
       const custoTotal = custoTempo + custoDistancia;
 
       // Lucro líquido
       const lucroLiquido = valor - custoTotal;
 
+      resultadoTexto = `
+        Valor a Receber: R$${valor.toFixed(2)}
+        Tempo da Viagem: ${tempo} min
+        Distância: ${distancia} km
+        Local de Recolha: ${origem}
+        Local de Destino: ${destino}
+        Custo Estimado: R$${custoTotal.toFixed(2)}
+        Lucro Líquido Estimado: R$${lucroLiquido.toFixed(2)}
+      `;
+
       document.getElementById('resultado').innerText =
-        `Lucro líquido estimado: €${lucroLiquido.toFixed(2)}`;
+        `Lucro Líquido Estimado: R$${lucroLiquido.toFixed(2)}`;
     }
 
     function exportarPDF() {
-      alert("Função de exportação para PDF ainda não implementada.");
+      if (!resultadoTexto) {
+        alert("Por favor, calcule o lucro antes de exportar.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("Relatório de Lucro Real por Viagem", 20, 20);
+      const linhas = resultadoTexto.split('\n');
+      let y = 40;
+      linhas.forEach(linha => {
+        doc.text(linha.trim(), 20, y);
+        y += 10;
+      });
+
+      doc.save("lucro_real_viagem.pdf");
     }
   </script>
 </body>
